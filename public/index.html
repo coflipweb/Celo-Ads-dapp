@@ -45,27 +45,27 @@
 		}
 	  }
 	</style>
-  <title>D'ONLINE CINEMA</title>
+  <title>ADMARKET</title>
 	</head>
   <body>
     <div class="container mt-2" style="max-width: 72em">
 
       <nav class="navbar bg-white navbar-light">
         <div class="container-fluid">
-          <span class="navbar-brand m-0 h4 fw-bold">CINEMART</span>
+          <span class="navbar-brand m-0 h4 fw-bold">ADMARKET</span>
           <div class="mb-4" style="margin-top: 4em">
             <a
               class="btn btn-dark rounded-pill"
               data-bs-toggle="modal"
-              data-bs-target="#addModal2"
+              data-bs-target="#addModal"
             >
-              Add Movie
+              Add Adspace
             </a>
             <a
               class="btn btn-dark rounded-pill"
-              id= "MovieRender"
+              id= "adspaceeRender"
             >
-              Movie
+              Adspaces
             </a>
           </div>
           <span class="nav-link border rounded-pill bg-light">
@@ -78,13 +78,13 @@
         <span id="notification">⌛ Loading...</span>
       </div>
     </div>  
-  <main id="CINEMART" class="row"></main>
+  <main id="AdMarket" class="row"></main>
 </div>
 
 <!--Modal-->
 <div
   class="modal fade"
-  id="addModal2"
+  id="addModal"
   tabindex="-1"
   aria-labelledby="newWorkerModalLabel"
   aria-hidden="true"
@@ -93,7 +93,7 @@
 	  <div class="modal-content">
 
 	    <div class="modal-header">
-		    <h5 class="modal-title" id="newProductModalLabel">New Movie</h5>
+		    <h5 class="modal-title" id="newProductModalLabel">New AdSpace</h5>
 		    <button
 		      type="button"
 		      class="btn-close"
@@ -107,50 +107,27 @@
             <div class="col">
               <input
                 type="text"
-                id="newMovieName"
+                id="newadSpaceName"
                 class="form-control mb-2"
-                placeholder="Enter name of Movie"
+                placeholder="Enter name adSpace"
               />
             </div>
             <div class="col">
               <input
                 type="text"
-                id="newMovieDirector"
+                id="newadSpacePrice"
                 class="form-control mb-2"
-                placeholder="Enter director"
+                placeholder="Enter Price for the Adspace"
               />
             </div>
             <div class="col">
               <input
                 type="text"
-                id="newMovieImgUrl"
+                id="newStartTime"
                 class="form-control mb-2"
-                placeholder="Enter image url"
+                placeholder="Enter StartTime"
               />
             </div>
-            <div class="col">
-              <input
-                type="text"
-                id="newMovieDescription"
-                class="form-control mb-2"
-                placeholder="Enter Movie description"
-              />
-            </div>
-            <div class="col">
-              <input
-                type="text"
-                id="newMoviePrice"
-                class="form-control mb-2"
-                placeholder="Enter Price"
-              />
-            </div>
-            <div class="col">
-              <input
-                type="text"
-                id="newMovieCopiesAvailable"
-                class="form-control mb-2"
-                placeholder="Enter Copies Available"
-              />
             </div>
           </div>
         </form>
@@ -165,9 +142,9 @@
           type="button"
           class="btn btn-dark"
           data-bs-dismiss="modal"
-          id="newMovieBtn"
+          id="newadSpaceBtn"
         >
-          Add Movie
+          Add adSpace
         </button>
       </div>
     </div>

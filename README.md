@@ -1,4 +1,5 @@
-The Celo-Ads app is a decentralized ad mrket place where users can sell ad spaces to companies.
+#CINEMART
+
 
 # Install
 

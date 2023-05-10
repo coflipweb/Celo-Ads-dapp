@@ -2,18 +2,18 @@
 import Web3 from 'web3'
 import { newKitFromWeb3 } from '@celo/contractkit'
 import BigNumber from "bignumber.js"
-import NetworksAbi from '../contract/Networks.abi.json'
+import AdsAbi from '../contract/Admarket.abi.json'
 import erc20Abi from "../contract/erc20.abi.json"
 
 const ERC20_DECIMALS = 18
-const APaddress = "0xbf2Ac58D115f2458E67c205699Ec461BC12b75A6"
+const APaddress = "0xfA2C350016256A9C7D36A3226396261674C144A4"
 const cUSDContractAddress = "0x874069Fa1Eb16D44d622F2e0Ca25eeA172369bC1"
 
 let kit
 let contract
-let Movies
+let AdSpaces
 
-const _Movies =[]
+const _ads =[]
 
 const connectCeloWallet = async function () {
   if (window.celo) {
@@ -27,7 +27,7 @@ const connectCeloWallet = async function () {
 
       const accounts = await kit.web3.eth.getAccounts()
       kit.defaultAccount = accounts[0]
-      contract = new kit.web3.eth.Contract(NetworksAbi, APaddress)
+      contract = new kit.web3.eth.Contract(AdsAbi, APaddress)
 
     } catch (error) {
       notification(`⚠️ ${error}.`)
@@ -52,62 +52,68 @@ const getBalance = async function () {
     document.querySelector("#balance").textContent = cUSDBalance
 }
 
-const getMovies = async function() {
-  const _MoviesSize = await contract.methods.getMovies().call()
+const getAdSpaces = async function() {
+  const _adSize = await contract.methods.adSpaceLength().call()
 
-  for(let i =0; i < _MoviesSize; i++){
+  for(let i =0; i < _adSize; i++){
     let _data = new Promise(async (resolve,reject) =>{
-      let p =await contract.methods.getMovie(i).call()
+      let p =await contract.methods.getAdspace(i).call()
       resolve({
         index: i,
-        productionCo: p[0],
-        title:p[1],
-        director: p[2],
-        image : p[3],
-        description: p[4],
-        price: p[5],
-        CopiesAvailable: p[6]
+        owner: p[0],
+        name:p[1],
+        image: p[2],
+        price: p[3],
+        startTime : p[4],
+        endTime: p[5],
+        purchased: p[6],
+        
       })
     })
-    _Movies.push(_data)
+    _ads.push(_data)
   }
 
-  Movies = await Promise.all(_Movies)
-  renderMovies()
+  AdSpaces = await Promise.all(_ads)
+  renderAdSpaces()
 }
 
-function renderMovies() {
-    document.getElementById("CINEMART").innerHTML = ""
-    Movies.forEach((_Movie) => {
+function renderAdSpaces() {
+    document.getElementById("AdMarket").innerHTML = ""
+    AdSpaces.forEach((_adspacee) => {
       const newDiv = document.createElement("div")
       newDiv.className = "col-md-4"
-      newDiv.innerHTML = MovieTemplate(_Movie)
-      document.getElementById("CINEMART").appendChild(newDiv)
+      newDiv.innerHTML = adspaceeTemplate(_adspacee)
+      document.getElementById("AdMarket").appendChild(newDiv)
     })
 }
 
 
-function  MovieTemplate(_Movie) {
+function  adspaceeTemplate(_adspacee) {
   return `
     <div class="card mb-4">
-      <img class="card-img-top" src="${_Movie.image}" alt="...">
+      <img class="card-img-top" src="${_adspacee.image}" alt="...">
       </div>
       <div class="card-body text-left p-4 position-relative">
       <div class="translate-middle-y position-absolute top-0">
-      ${identiconTemplate(_Movie.productionCo)}
+      ${identiconTemplate(_adspacee.owner)}
       </div>
-      <h2 class="card-title fs-4 fw-bold mt-2">${_Movie.title}</h2>
+      <h2 class="card-title fs-4 fw-bold mt-2">${_adspacee.name}</h2>
       <p class="card-text mb-4" style="min-height: 82px">
-        ${_Movie.description}             
+        ${_adspacee.price}             
       </p>
       <p class="card-text mt-4">
         <i class="bi bi-geo-alt-fill"></i>
-        <span> Copies Available ${_Movie.CopiesAvailable}</span>
+        <span> Usage starts from ${_adspacee.startTime} to ${_adspacee.endTime}</span>
       </p>
       <a class="btn btn-lg btn-outline-dark BuyBtn fs-6 p-3" id=${
-        _Movie.index}
+        _adspacee.index}
       >
-        Buy Movie 
+        Buy adspacee for ${_adspacee.price}
+      </a>
+      <a class="btn btn-lg btn-outline-dark DeleteBtn fs-6 p-3" id=${
+        _adspacee.index}
+      >
+        Delete AdSpace ${_adspacee.index}
       </a>
     </div>
   </div>
@@ -147,64 +153,81 @@ window.addEventListener("load", async () => {
   await connectCeloWallet()
   getBalance()
   notificationOff()
-  getMovies()
+  getAdSpaces()
   
 })
 
 
   
   document
-  .querySelector("#newMovieBtn")
+  .querySelector("#newadSpaceBtn")
   .addEventListener("click", async () => {
     const params = [
-      document.getElementById("newMovieName").value,
-      document.getElementById("newMovieDirector").value,
-      document.getElementById("newMovieImgUrl").value,
-      document.getElementById("newMovieDescription").value,
-      new BigNumber(document.getElementById("newMoviePrice").value)
+      document.getElementById("newadSpaceName").value,
+      document.getElementById("newadSpaceName").value,
+      new BigNumber(document.getElementById("newadspaceePrice").value)
       .shiftedBy(ERC20_DECIMALS)
       .toString(),
-      document.getElementById("newMovieCopiesAvailable").value,
+      document.getElementById("newStartTime").value,
     ]
     
     try {
       const result = await contract.methods
-        .addMovie(...params)
+        .createAdSpace(...params)
         .send({ from: kit.defaultAccount })
     } catch (error) {
       notification(`⚠️ ${error}.`)
     }
     notification(`🎉 You successfully added "${params[0]}".`)
-    getMovies()
+    getAdSpaces()
   })
 
   
-  document.querySelector("#MovieRender")
+  document.querySelector("#adspaceeRender")
   .addEventListener("click", async () => {
-    getMovies()
+    getAdSpaces()
   })
 
-  document.querySelector("#CINEMART").addEventListener("click", async (e) => {
+  document.querySelector("#AdMarket").addEventListener("click", async (e) => {
     if(e.target.className.includes("BuyBtn")) {
       const index = e.target.id
       
-      if (_Movies[index].title != ""){
+      if (AdSpaces[index].name != ""){
         
         try {
-        await approve(new BigNumber(_Movies[index].price))
+        await approve(new BigNumber(AdSpaces[index].price))
         const result = await contract.methods
-          .BuyMovie(index)
+          .purchaseAdSpace(index)
           .send({ from: kit.defaultAccount })
           .shiftedBy(ERC20_DECIMALS)
           .toString()
-          notification(`🎉 You successfully Bought "${_Movies[index].title}".`)
-          getMovies()
+          notification(`🎉 You successfully Bought "${_AdSpaces[index].title}".`)
+          getAdSpaces()
           getBalance()
           } catch (error) {
             notification(`⚠️ ${error}.`)
           }
-      }
-      
+      }      
     }
+  })
+
+    document.querySelector("#AdMarket").addEventListener("click", async (e) => {
+      if(e.target.className.includes("DeleteBtn")) {
+        const index = e.target.id
+        
+        if (AdSpaces[index].name != ""){
+          
+          try {
+          const result = await contract.methods
+            .DeleteAd(index)
+            .send({ from: kit.defaultAccount })
+            notification(`🎉 You successfully Deleted "${_AdSpaces[index].name}".`)
+            getAdSpaces()
+            getBalance()
+            } catch (error) {
+              notification(`⚠️ ${error}.`)
+            }
+        }
+      }
 
   })
