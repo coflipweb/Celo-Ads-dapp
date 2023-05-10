@@ -1,4 +1,4 @@
-The workspaces dapp is a simple app for users to get external help from free lancers on their assignments. Its an interesting take on open source
+The Celo-Ads app is a decentralized ad mrket place where users can sell ad spaces to companies.
 
 # Install
 
