@@ -78,6 +78,10 @@ contract AdMarketplace {
     function createAdSpace(string calldata name, string calldata image, uint256 price, uint256 startTime) public {
         // Only allow authorized advertisers to create advertisement spaces
         require(Authorized[msg.sender] , "Only authorized advertisers can create advertisement spaces.");
+
+        // Check if an ad space with the same AdSpacesCount value already exists
+        require(adSpaces[AdSpacesCount].owner == address(0), "Ad space with the same ID already exists.");
+
         
         // Create the advertisement space struct
         AdSpace memory adSpace = AdSpace({
@@ -97,14 +101,23 @@ contract AdMarketplace {
     
     // Function for companies authorized by the marketplace owner to purchase an advertisement space
     function purchaseAdSpace(uint256 adSpaceId, uint price) public payable {
-        // Only allow authorized companies to purchase advertisement spaces
-        require(msg.sender == owner, "Only authorized companies can purchase advertisement spaces.");
+       
         
+        require(ads[adId].price > 0, "Ad space is not available for purchase.");
+
+        // Ensure start time is in the future
+        require(startTime > block.timestamp, "Start time must be in the future");
+
+
         // Get the advertisement space from the mapping
         AdSpace storage adSpace = adSpaces[adSpaceId];
         
         // Check that the advertisement space has not already been purchased
         require(!adSpace.purchased, "This advertisement space has already been purchased.");
+
+         // Check if the purchaser has already bought the same ad space before
+         require(!hasPurchasedAdSpace(msg.sender, adSpaceId), "You have already purchased this advertisement space.");
+
         
         // Check that the purchase is being made at least 6 hours before the start time of the advertisement space
         require(adSpace.startTime - block.timestamp >= 6 hours, "This advertisement space cannot be purchased less than 6 hours before the start time.");
@@ -122,10 +135,20 @@ contract AdMarketplace {
         emit AdSpacePurchased(adSpaceId, msg.sender, adSpace.price);
     }
 
-    function DeleteAd(uint _index) public{
-        require((adSpaces[_index].owner == msg.sender), "Only and ad Space owner can delete an ad space");
-        delete adSpaces[_index] ;
+   function DeleteAd(uint _index) public {
+    AdSpace storage adSpace = adSpaces[_index];
+    require(adSpace.owner == msg.sender, "Only the owner of the ad space can delete it.");
+    
+    if (adSpace.purchased) {
+        // Refund the purchase price to the purchaser
+        require(IERC20Token(cUSDContractAddress).transfer(adSpace.owner, adSpace.price), "Refund failed.");
     }
+    
+    delete adSpaces[_index];
+    AdSpacesCount--; // Decrement AdSpacesCount when an ad space is deleted
+
+}
+
     
     function adSpacesLength() public view returns(uint){
         return(AdSpacesCount);
